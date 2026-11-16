@@ -81,7 +81,8 @@ function AssetNode({ data }) {
       border: `3px solid ${c}`, background: '#fff', borderRadius: 10,
       padding: 10, width: 170, textAlign: 'center', boxShadow: '0 2px 6px #0002'
     }}>
-      <Handle type="target" position={Position.Left} />
+      <Handle type="target" position={Position.Left}
+        style={{ width: 16, height: 16, background: '#1e3a8a', border: '2px solid #fff' }} />
       <div style={{ fontWeight: 700 }}>{data.name}</div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{data.job}</div>
       {data.monitored ? (
@@ -99,7 +100,8 @@ function AssetNode({ data }) {
           At risk: -{Math.round(data.impact)}% (linked)
         </div>
       )}
-      <Handle type="source" position={Position.Right} />
+      <Handle type="source" position={Position.Right}
+        style={{ width: 16, height: 16, background: '#1e3a8a', border: '2px solid #fff' }} />
     </div>
   )
 }
@@ -121,6 +123,16 @@ export default function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [selected, setSelected] = useState(null)
   const [now, setNow] = useState(new Date())
+  const [from, setFrom] = useState('pump')
+  const [to, setTo] = useState('acc')
+
+  const addLink = () => {
+    if (from === to) return
+    if (edges.some(e => e.source === from && e.target === to)) return
+    setEdges(es => addEdge(
+      { id: `${from}-${to}`, source: from, target: to, animated: true }, es))
+  }
+  const removeLink = id => setEdges(es => es.filter(e => e.id !== id))
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000)
@@ -189,6 +201,7 @@ export default function App() {
       <div style={{ flex: 1, display: 'flex', minHeight: 0, padding: '0 12px 12px', gap: 12 }}>
         <div style={{ flex: 1, background: '#fff', borderRadius: 10, boxShadow: '0 1px 4px #0001' }}>
           <ReactFlow nodes={displayNodes} edges={edges} nodeTypes={nodeTypes}
+            connectionMode="loose" connectionRadius={40}
             onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
             onConnect={onConnect} onNodeClick={(_, n) => setSelected(n.id)} fitView>
             <Background /><Controls />
